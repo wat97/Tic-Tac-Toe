@@ -22,7 +22,25 @@ class CellCordinate extends Equatable {
       : currentPlayer! == Player.playerX
           ? "X"
           : "O";
+  String get coordinateString => "($col,$row)";
+
+  bool isValid({
+    required int maxCol,
+    required int maxRow,
+  }) {
+    if (col < 0) return false;
+    if (row < 0) return false;
+    if (col >= maxCol) return false;
+    if (row >= maxRow) return false;
+    return true;
+  }
 
   @override
   List<Object> get props => [col, row];
+
+  Map<String, dynamic> toJson() => {
+        "col": col,
+        "row": row,
+        "current_player": getTextPlayer,
+      };
 }

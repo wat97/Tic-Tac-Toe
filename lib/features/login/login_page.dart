@@ -68,12 +68,12 @@ class _LoginPageState extends State<LoginPage> {
 
   List<Widget> getMatrix(LoginProvider prov) {
     List<Widget> rows = [];
-    for (var i = 0; i < prov.maxRow; i++) {
+    for (var i = 0; i < prov.maxWidth; i++) {
       rows.add(
         Row(
           children: generateRow(
             prov,
-            col: (i - 1),
+            col: i,
           ),
         ),
       );
@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
     int col = 0,
   }) {
     List<Widget> column = [];
-    for (var i = 0; i < prov.maxRow; i++) {
+    for (var i = 0; i < prov.maxWidth; i++) {
       column.add(
         generateCell(
           prov,
@@ -115,34 +115,54 @@ class _LoginPageState extends State<LoginPage> {
     return column;
   }
 
-  SizedBox generateCell(LoginProvider prov, CellCordinate cellCordinate) {
-    return SizedBox(
-      width: prov.size.width * 0.15,
-      height: prov.size.width * 0.15,
-      child: AnimatedLiner(
-        size: const Size(
-          double.infinity,
-          double.infinity,
-        ),
-        colorLine: Colors.black,
-        thicknessPaint: 5,
-        duration: const Duration(
-          seconds: 2,
-          milliseconds: 200,
-        ),
-        sidePaint: SidePaint(
-          top: true,
-          right: true,
-          left: cellCordinate.row == 0 ? true : false,
-          down: cellCordinate.col == (prov.maxRow - 2) ? true : false,
-        ),
-        child: Center(
-          child: Text(
-            cellCordinate.getTextPlayer,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+  Widget generateCell(LoginProvider prov, CellCordinate cellCordinate) {
+    CellCordinate newCell = prov.processCell(cellCordinate);
+    return GestureDetector(
+      onTap: () => prov.onClickTic(newCell),
+      child: SizedBox(
+        width: prov.size.width * 0.15,
+        height: prov.size.width * 0.15,
+        child: AnimatedLiner(
+          size: const Size(
+            double.infinity,
+            double.infinity,
+          ),
+          colorLine: Colors.black,
+          thicknessPaint: 5,
+          duration: const Duration(
+            seconds: 2,
+            milliseconds: 200,
+          ),
+          sidePaint: SidePaint(
+            top: true,
+            right: true,
+            left: newCell.row == 0 ? true : false,
+            down: newCell.col == (prov.maxWidth - 1) ? true : false,
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.only(
+                  top: 5,
+                ),
+                child: Text(
+                  newCell.coordinateString,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              Center(
+                child: Text(
+                  newCell.getTextPlayer,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
