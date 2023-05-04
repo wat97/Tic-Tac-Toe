@@ -6,13 +6,13 @@ enum Player {
 }
 
 class CellCordinate extends Equatable {
-  final int col;
-  final int row;
+  final int x;
+  final int y;
   Player? currentPlayer;
 
   CellCordinate(
-    this.col,
-    this.row,
+    this.x,
+    this.y,
   );
 
   set setCurrentPlayer(Player currentPlayer) => currentPlayer = currentPlayer;
@@ -22,25 +22,30 @@ class CellCordinate extends Equatable {
       : currentPlayer! == Player.playerX
           ? "X"
           : "O";
-  String get coordinateString => "($col,$row)";
+  String get coordinateString => "($x,$y)";
 
   bool isValid({
-    required int maxCol,
-    required int maxRow,
+    required int maxX,
+    required int maxY,
   }) {
-    if (col < 0) return false;
-    if (row < 0) return false;
-    if (col >= maxCol) return false;
-    if (row >= maxRow) return false;
+    if (x < 0) return false;
+    if (y < 0) return false;
+    if (x >= maxX) return false;
+    if (y >= maxY) return false;
     return true;
   }
 
   @override
-  List<Object> get props => [col, row];
+  List<Object> get props => [x, y];
 
   Map<String, dynamic> toJson() => {
-        "col": col,
-        "row": row,
+        "x": x,
+        "y": y,
         "current_player": getTextPlayer,
       };
+
+  @override
+  String toString() {
+    return "CellCoordinate($x,$y*$getTextPlayer*)";
+  }
 }

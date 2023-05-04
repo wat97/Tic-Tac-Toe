@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
           const Spacer(),
           Container(
             margin: EdgeInsets.symmetric(horizontal: prov.size.width * 0.1),
-            child: Column(
+            child: Row(
               children: getMatrix(
                 prov,
               ),
@@ -66,11 +66,18 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Widget generateMatrix(LoginProvider prov) => Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: prov.size.width * 0.1,
+        ),
+      );
+
   List<Widget> getMatrix(LoginProvider prov) {
     List<Widget> rows = [];
     for (var i = 0; i < prov.maxWidth; i++) {
+      // generate X
       rows.add(
-        Row(
+        Column(
           children: generateRow(
             prov,
             col: i,
@@ -92,24 +99,6 @@ class _LoginPageState extends State<LoginPage> {
           prov,
           CellCordinate(col, i),
         ),
-
-        // Container(
-        //   height: prov.size.height * 0.1,
-        //   width: prov.size.width * 0.1,
-        //   decoration: BoxDecoration(
-        //       color: Colors.yellow,
-        //       border: Border.all(
-        //         color: Colors.black,
-        //         width: 5,
-        //       )),
-        // ),
-        // Row(
-        //   children: generateRow(
-        //     context,
-        //     prov,
-        //     col: (i - 1),
-        //   ),
-        // ),
       );
     }
     return column;
@@ -118,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget generateCell(LoginProvider prov, CellCordinate cellCordinate) {
     CellCordinate newCell = prov.processCell(cellCordinate);
     return GestureDetector(
-      onTap: () => prov.onClickTic(newCell),
+      onTap: () => prov.winnerPlayer == null ? prov.onClickTic(newCell) : null,
       child: SizedBox(
         width: prov.size.width * 0.15,
         height: prov.size.width * 0.15,
@@ -136,23 +125,24 @@ class _LoginPageState extends State<LoginPage> {
           sidePaint: SidePaint(
             top: true,
             right: true,
-            left: newCell.row == 0 ? true : false,
-            down: newCell.col == (prov.maxWidth - 1) ? true : false,
+            left: newCell.x == 0 ? true : false,
+            down: newCell.y == (prov.maxWidth - 1) ? true : false,
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                margin: EdgeInsets.only(
-                  top: 5,
-                ),
-                child: Text(
-                  newCell.coordinateString,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
+              // Container(
+              //   margin: EdgeInsets.only(
+              //     top: 5,
+              //   ),
+              //   child: Text(
+              //     newCell.coordinateString,
+              //     style: const TextStyle(
+              //       fontSize: 16,
+              //       fontWeight: FontWeight.w400,
+              //     ),
+              //   ),
+              // ),
               Center(
                 child: Text(
                   newCell.getTextPlayer,

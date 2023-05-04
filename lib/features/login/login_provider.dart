@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:template_provider/models/model_cell_cordinate.dart';
+import 'package:template_provider/widget/widget.dart';
 
 import '../../core/core.dart';
 import '../../router/router.dart';
@@ -12,6 +13,7 @@ class LoginProvider extends CustomCore {
   TextEditingController controllerPassword = TextEditingController();
   int maxWidth = 3;
   int conditionWin = 3;
+  Player? winnerPlayer;
   // List<CellCordinate> answerTicTacToe = [];
   List<CellCordinate> boardTicTacToe = [];
   Player current_player = Player.playerX;
@@ -63,7 +65,20 @@ class LoginProvider extends CustomCore {
       // checkWinner();
       notifyListeners();
     }
-    checkWinner();
+    winnerPlayer = checkWinner();
+    if (winnerPlayer != null) {
+      print("Selamat Player $winnerPlayer adalah pemenang");
+      // BasicDialog().
+      // BasicDialog.(
+      //   context,
+      //   false,
+      //   buttonText: 'OK',
+      //   msg: result.errMsg,
+      //   onPress: () async {
+      //     Navigator.pop(context);
+      //   },
+      // );
+    }
     notifyListeners();
   }
 
@@ -76,50 +91,137 @@ class LoginProvider extends CustomCore {
     return cellCordinate;
   }
 
-  checkWinner() async {
+  Player? checkWinner() {
+    int iteratewin = 1;
+    Player? playerWin;
     for (var element in boardTicTacToe) {
       // check condition player
-      if (element.currentPlayer == Player.playerX) {
-        for (final line in getValidLines(element)) {
-          line.forEach((element) {
-            print("lineWinneran ${element.toJson()}");
-          });
-          var enemy =
-              line.where((element) => element.currentPlayer == Player.playerO);
-          var human =
-              line.where((element) => element.currentPlayer == Player.playerX);
-          print("lineWinner ${line}, $enemy, $human");
+      iteratewin = 1;
+      print("checkWinner ${element}, |${boardTicTacToe.length}|");
+      for (final line in getValidLines(element, boardTicTacToe)) {
+        print("lineChecking ${line}");
+        for (var rowLine in line) {
+          print("Counting Player ${playerWin} , $iteratewin");
+          if (playerWin == rowLine.currentPlayer) {
+            iteratewin++;
+            if (iteratewin == conditionWin) {
+              return playerWin;
+            }
+          } else {
+            iteratewin = 1;
+            playerWin = rowLine.currentPlayer;
+          }
         }
-        // print("element ${element.toJson()}, ${lines}");
       }
     }
-    print("Winner");
-    notifyListeners();
   }
 
   Iterable<List<CellCordinate>> getValidLines(
-      CellCordinate cellCordinate) sync* {
-    for (var startCol = cellCordinate.col - maxWidth + 1;
-        startCol <= cellCordinate.col;
+      CellCordinate cellCordinate, List<CellCordinate> boardCell) sync* {
+    // Vertikal Lines
+    outerloop:
+    for (var startCol = cellCordinate.x - maxWidth + 1;
+        startCol <= cellCordinate.x;
         startCol++) {
-      final startCoordinate = CellCordinate(startCol, cellCordinate.row);
+      final startCoordinate = CellCordinate(startCol, cellCordinate.y);
       // print("getValidLines startCoordinates ${startCoordinate}");
       if (!startCoordinate.isValid(
-        maxCol: maxWidth,
-        maxRow: maxWidth,
+        maxX: maxWidth,
+        maxY: maxWidth,
       )) continue;
       final endCoordinate =
-          CellCordinate(startCoordinate.col + maxWidth - 1, cellCordinate.row);
+          CellCordinate(startCoordinate.x + maxWidth - 1, cellCordinate.y);
       // print("getValidLines endCoordinate ${endCoordinate}");
       if (!endCoordinate.isValid(
-        maxCol: maxWidth,
-        maxRow: maxWidth,
+        maxX: maxWidth,
+        maxY: maxWidth,
       )) continue;
-      print("getValidLines yield, ${cellCordinate.toJson()}");
-      yield [
-        for (var i = startCoordinate.col; i <= endCoordinate.col; i++)
-          CellCordinate(i, cellCordinate.row)
-      ];
+      List<CellCordinate> iterateCell = [];
+
+      for (var i = startCoordinate.x; i <= endCoordinate.x; i++) {
+        CellCordinate cellTemp = boardTicTacToe.firstWhere(
+            (element) => element == CellCordinate(i, cellCordinate.y));
+        iterateCell.add(cellTemp);
+        if (cellTemp.currentPlayer == null) break outerloop;
+      }
+      print("getValidLines vertical ${iterateCell}");
+      yield iterateCell;
+    }
+
+    print("horizontal Line");
+
+    // Horizontal Lines
+    outerloop:
+    for (var startRow = cellCordinate.y - maxWidth + 1;
+        startRow <= cellCordinate.y;
+        startRow++) {
+      final startCoordinate = CellCordinate(cellCordinate.x, startRow);
+      print("getValidLines horizontal startCoordinates ${startCoordinate}");
+      if (!startCoordinate.isValid(
+        maxX: maxWidth,
+        maxY: maxWidth,
+      )) continue;
+      final endCoordinate =
+          CellCordinate(cellCordinate.x, startCoordinate.y + maxWidth - 1);
+      if (!endCoordinate.isValid(
+        maxX: maxWidth,
+        maxY: maxWidth,
+      )) continue;
+      List<CellCordinate> iterateCell = [];
+      for (var i = startCoordinate.y; i <= endCoordinate.y; i++) {
+        CellCordinate cellTemp = boardTicTacToe.firstWhere(
+            (element) => element == CellCordinate(cellCordinate.x, i));
+        iterateCell.add(cellTemp);
+        if (cellTemp.currentPlayer == null) break outerloop;
+      }
+      print("getValidLines horizontal ${iterateCell}");
+      yield iterateCell;
+    }
+
+    // down ward diagonal
+    outerloop:
+    for (var colOffset = -maxWidth + 1; colOffset <= 0; colOffset++) {
+      var rowOffset = colOffset;
+      final startCoordinate = CellCordinate(
+          cellCordinate.x + colOffset, cellCordinate.y + rowOffset);
+      print("downWard Start ${startCoordinate}");
+      if (!startCoordinate.isValid(maxX: maxWidth, maxY: maxWidth)) continue;
+      final endCoordinate = CellCordinate(
+          startCoordinate.x + maxWidth - 1, startCoordinate.y + maxWidth - 1);
+      if (!endCoordinate.isValid(maxX: maxWidth, maxY: maxWidth)) continue;
+      List<CellCordinate> iterateCell = [];
+      for (var i = 0; i < maxWidth; i++) {
+        CellCordinate cellTemp = boardTicTacToe.firstWhere((element) =>
+            element ==
+            CellCordinate(startCoordinate.x + i, startCoordinate.y + i));
+        iterateCell.add(cellTemp);
+        if (cellTemp.currentPlayer == null) break outerloop;
+      }
+      print("downWard ${iterateCell}");
+      yield iterateCell;
+    }
+
+    // Up ward diagonal
+    outerloop:
+    for (var colOffset = -maxWidth + 1; colOffset <= 0; colOffset++) {
+      var rowOffset = -colOffset;
+      final startCoordinate = CellCordinate(
+          cellCordinate.x + colOffset, cellCordinate.y + rowOffset);
+      print("upWard Start ${startCoordinate}");
+      if (!startCoordinate.isValid(maxX: maxWidth, maxY: maxWidth)) continue;
+      final endCoordinate = CellCordinate(
+          startCoordinate.x + maxWidth - 1, startCoordinate.y - maxWidth + 1);
+      if (!endCoordinate.isValid(maxX: maxWidth, maxY: maxWidth)) continue;
+      List<CellCordinate> iterateCell = [];
+      for (var i = 0; i < maxWidth; i++) {
+        CellCordinate cellTemp = boardTicTacToe.firstWhere((element) =>
+            element ==
+            CellCordinate(startCoordinate.x + i, startCoordinate.y - i));
+        iterateCell.add(cellTemp);
+        if (cellTemp.currentPlayer == null) break outerloop;
+      }
+      print("upWard ${iterateCell}");
+      yield iterateCell;
     }
   }
 }
