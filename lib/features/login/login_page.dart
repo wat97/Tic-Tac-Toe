@@ -1,7 +1,7 @@
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:template_provider/models/model_cell_cordinate.dart';
 
+import '../../models/models.dart';
 import 'login_provider.dart';
 import '../../widget/widget.dart';
 
@@ -49,18 +49,17 @@ class _LoginPageState extends State<LoginPage> {
   Widget contentPage(BuildContext context, LoginProvider prov) {
     return Expanded(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Spacer(),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: prov.size.width * 0.1),
-            child: Row(
-              children: getMatrix(
-                prov,
-              ),
-            ),
+            child: prov.gameService.boardTicTacToe.isNotEmpty
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: getMatrix(
+                      prov,
+                    ),
+                  )
+                : Container(),
           ),
-          const Spacer(),
         ],
       ),
     );
@@ -74,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
 
   List<Widget> getMatrix(LoginProvider prov) {
     List<Widget> rows = [];
-    for (var i = 0; i < prov.maxWidth; i++) {
+    for (var i = 0; i < prov.gameService.maxWidth; i++) {
       // generate X
       rows.add(
         Column(
@@ -93,24 +92,26 @@ class _LoginPageState extends State<LoginPage> {
     int col = 0,
   }) {
     List<Widget> column = [];
-    for (var i = 0; i < prov.maxWidth; i++) {
+    for (var i = 0; i < prov.gameService.maxWidth; i++) {
       column.add(
         generateCell(
           prov,
-          CellCordinate(col, i),
+          Cell(col, i),
         ),
       );
     }
     return column;
   }
 
-  Widget generateCell(LoginProvider prov, CellCordinate cellCordinate) {
-    CellCordinate newCell = prov.processCell(cellCordinate);
+  Widget generateCell(LoginProvider prov, Cell cell) {
+    Cell newCell = prov.gameService.processCellBoard(cell);
     return GestureDetector(
-      onTap: () => prov.winnerPlayer == null ? prov.onClickTic(newCell) : null,
+      onTap: () => prov.gameService.winnerPlayer == null
+          ? prov.onClickTic(newCell)
+          : null,
       child: SizedBox(
-        width: prov.size.width * 0.15,
-        height: prov.size.width * 0.15,
+        width: (prov.size.width / prov.gameService.maxWidth) - 10,
+        height: (prov.size.width / prov.gameService.maxWidth) - 10,
         child: AnimatedLiner(
           size: const Size(
             double.infinity,
@@ -126,28 +127,29 @@ class _LoginPageState extends State<LoginPage> {
             top: true,
             right: true,
             left: newCell.x == 0 ? true : false,
-            down: newCell.y == (prov.maxWidth - 1) ? true : false,
+            down: newCell.y == (prov.gameService.maxWidth - 1) ? true : false,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Container(
-              //   margin: EdgeInsets.only(
-              //     top: 5,
-              //   ),
-              //   child: Text(
-              //     newCell.coordinateString,
-              //     style: const TextStyle(
-              //       fontSize: 16,
-              //       fontWeight: FontWeight.w400,
-              //     ),
-              //   ),
-              // ),
+              Container(
+                margin: EdgeInsets.only(
+                  top: 5,
+                ),
+                child: Text(
+                  newCell.coordinateString,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
               Center(
                 child: Text(
                   newCell.getTextPlayer,
-                  style: const TextStyle(
-                    fontSize: 24,
+                  style: TextStyle(
+                    fontSize: (prov.size.width / prov.gameService.maxWidth) -
+                        (prov.size.width * 0.15),
                     fontWeight: FontWeight.bold,
                   ),
                 ),

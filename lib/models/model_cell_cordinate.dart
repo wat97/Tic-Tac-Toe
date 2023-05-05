@@ -5,12 +5,12 @@ enum Player {
   playerO,
 }
 
-class CellCordinate extends Equatable {
+class Cell extends Equatable {
   final int x;
   final int y;
   Player? currentPlayer;
 
-  CellCordinate(
+  Cell(
     this.x,
     this.y,
   );
@@ -46,6 +46,6 @@ class CellCordinate extends Equatable {
 
   @override
   String toString() {
-    return "CellCoordinate($x,$y*$getTextPlayer*)";
+    return "Cell($x,$y*$getTextPlayer*)";
   }
 }
