@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,7 +24,7 @@ class ServicesStorage {
     SharedPreferences localPreference = await preference;
     if (value) {
       switch (value.runtimeType) {
-        case Int:
+        case int:
           {
             localPreference.setInt(key, value);
             break;

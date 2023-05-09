@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import '../../models/models.dart';
 
 /// Game Service for Tic Tac Toe
@@ -14,6 +16,9 @@ class GameService {
   /// Who running game
   Player currentPlayer;
 
+  /// Who Ai opponent
+  final Player? aiPlayer;
+
   Function? _functionRefresh;
 
   Cell? clickedCell;
@@ -21,6 +26,7 @@ class GameService {
     required this.maxWidth,
     required this.conditionWinner,
     required this.currentPlayer,
+    this.aiPlayer,
   })
   // : assert(maxWidth >= 3),
   //       assert(conditionWinner >= maxWidth)
@@ -63,6 +69,10 @@ class GameService {
       // print("Logic after Click ${this.currentPlayer} === ${currentPlayer}");
 
       _functionRefresh!();
+      // print("aiPlayer = $aiPlayer, current ${this.currentPlayer}");
+      if (aiPlayer == this.currentPlayer) {
+        nextMoveAi();
+      }
     }
   }
 
@@ -79,23 +89,15 @@ class GameService {
         for (var cellAlone in lineCell) {
           if (player == cellAlone.currentPlayer &&
               cellAlone.currentPlayer != null) {
-            print(
-                "Before winner $player | ${cellAlone} | $countingWin | $conditionWinner");
             countingWin++;
             if (countingWin == conditionWinner) {
-              print("lineCell $lineCell ($countingWin) ($conditionWinner)");
               return player;
             }
-            print(
-                "winner $player | ${cellAlone} | $countingWin | $conditionWinner");
           } else {
             countingWin = 1;
             player = cellAlone.currentPlayer;
-            print(
-                "winner $player | ${cellAlone} | $countingWin | $conditionWinner");
           }
         }
-        print("======|$player|$countingWin|=========");
       }
     }
     return null;
@@ -135,7 +137,7 @@ class GameService {
         Cell cellTemp =
             boardTicTacToe.firstWhere((element) => element == Cell(i, cell.y));
         iterateCell.add(cellTemp);
-        if (cellTemp.currentPlayer == null) {
+        if (cellTemp.currentPlayer != null) {
           filled++;
         }
       }
@@ -167,7 +169,7 @@ class GameService {
         Cell cellTemp =
             boardTicTacToe.firstWhere((element) => element == Cell(cell.x, i));
         iterateCell.add(cellTemp);
-        if (cellTemp.currentPlayer == null) {
+        if (cellTemp.currentPlayer != null) {
           filled++;
         }
       }
@@ -195,7 +197,7 @@ class GameService {
         Cell cellTemp = boardTicTacToe.firstWhere(
             (element) => element == Cell(startCell.x + i, startCell.y + i));
         iterateCell.add(cellTemp);
-        if (cellTemp.currentPlayer == null) filled++;
+        if (cellTemp.currentPlayer != null) filled++;
       }
       if (filled < conditionWinner) {
         return [];
@@ -221,7 +223,7 @@ class GameService {
         Cell cellTemp = boardTicTacToe.firstWhere(
             (element) => element == Cell(startCell.x + i, startCell.y - i));
         iterateCell.add(cellTemp);
-        if (cellTemp.currentPlayer == null) filled++;
+        if (cellTemp.currentPlayer != null) filled++;
       }
       if (filled < conditionWinner) {
         return [];
@@ -237,5 +239,20 @@ class GameService {
       return cellBoard.first;
     }
     return cell;
+  }
+
+  void nextMoveAi() {
+    int logican = 0;
+    bool isClicked = false;
+    do {
+      logican = Random().nextInt(boardTicTacToe.length);
+      isClicked = boardTicTacToe.elementAt(logican).currentPlayer != null;
+    } while (isClicked);
+
+    print(
+        "nextMoveAi $boardTicTacToe, length ${boardTicTacToe.length}, logic = $logican");
+    logicClick(
+        currentPlayer: aiPlayer!,
+        clickedCell: boardTicTacToe.elementAt(logican));
   }
 }

@@ -33,6 +33,7 @@ class LoginProvider extends CustomCore {
       maxWidth: 4,
       conditionWinner: 3,
       currentPlayer: current_player,
+      aiPlayer: Player.playerO,
     );
     gameService.setRefresh = () {
       notifyListeners();
@@ -48,23 +49,14 @@ class LoginProvider extends CustomCore {
     );
   }
 
-  // initBoard() {
-  //   for (var i = 0; i < maxWidth; i++) {
-  //     for (var j = 0; j < maxWidth; j++) {
-  //       Cell cell = Cell(i, j);
-  //       boardTicTacToe.add(cell);
-  //     }
-  //   }
-  // }
-
   onClickTic(Cell cell) {
     gameService.logicClick(
       currentPlayer: current_player,
       clickedCell: cell,
     );
     current_player = gameService.currentPlayer;
-    var player = gameService.winnerPlayer;
-    print("winneran ${player}");
+    var winner_player = gameService.winnerPlayer;
+    print("winneran ${winner_player}");
     // var tempCell = boardTicTacToe.indexWhere((element) {
     //   // if (element == Cell && element.currentPlayer == null) {
     //   //   return true;
@@ -87,22 +79,22 @@ class LoginProvider extends CustomCore {
     //   notifyListeners();
     // }
     // winnerPlayer = checkWinner();
-    // if (winnerPlayer != null) {
-    //   print("Selamat Player $winnerPlayer adalah pemenang");
-    //   BasicDialogState().showDialogMessage(this.contextCore, true,
-    //       msg: "Selamat Player $winnerPlayer adalah pemenang");
-    //   // BasicDialog().
-    //   // BasicDialog.(
-    //   //   context,
-    //   //   false,
-    //   //   buttonText: 'OK',
-    //   //   msg: result.errMsg,
-    //   //   onPress: () async {
-    //   //     Navigator.pop(context);
-    //   //   },
-    //   // );
-    // }
-    // notifyListeners();
+    if (winner_player != null) {
+      print("Selamat Player $winner_player adalah pemenang");
+      BasicDialogState().showDialogMessage(this.contextCore, true,
+          msg: "Selamat Player $winner_player adalah pemenang");
+      // BasicDialog().
+      // BasicDialog.(
+      //   context,
+      //   false,
+      //   buttonText: 'OK',
+      //   msg: result.errMsg,
+      //   onPress: () async {
+      //     Navigator.pop(context);
+      //   },
+      // );
+    }
+    notifyListeners();
   }
 
   // Cell processCell(Cell cell) {
